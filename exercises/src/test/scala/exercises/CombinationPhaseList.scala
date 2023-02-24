@@ -2,14 +2,14 @@ package exercises
 
 // TODO: Remove IgnoreSuite annotation
 
-@munit.IgnoreSuite
+// @munit.IgnoreSuite
 class CombinationPhaseList extends munit.FunSuite {
 
   import cats.syntax.traverse._
 
   case class Item(qty: Int)
 
-  def createItem(qty: String): Option[Item] =
+  def createItem(qty: String): Option[Item] = 
     if (qty.matches("^[0-9]+$")) Some(Item(qty.toInt))
     else None
 
@@ -19,14 +19,14 @@ class CombinationPhaseList extends munit.FunSuite {
   test("all valid - individual validation results") {
     val values = List("1", "10", "100")
     // TODO: Use map over values list to create items
-    val items: List[Option[Item]] = ???
+    val items: List[Option[Item]] = values.map(createItem(_))
     assertEquals(items, List(Some(Item(1)), Some(Item(10)), Some(Item(100))))
   }
 
   test("some invalid - individual validation results") {
     val values = List("1", "asf", "100")
     // TODO: Use map over values list to create items
-    val items: List[Option[Item]] = ???
+    val items: List[Option[Item]] = values.map(createItem(_))
     assertEquals(items, List(Some(Item(1)), None, Some(Item(100))))
   }
 
@@ -36,14 +36,14 @@ class CombinationPhaseList extends munit.FunSuite {
   test("all valid - one omni validation result") {
     val values = List("1", "10", "100")
     // TODO: Use traverse over values list to create items
-    val items: Option[List[Item]] = ???
+    val items: Option[List[Item]] = values.traverse(createItem(_))
     assertEquals(items, Some(List(Item(1), Item(10), Item(100))))
   }
 
   test("some invalid - one omni validation result") {
     val values = List("1", "asd", "100")
     // TODO: Use traverse over values list to create items
-    val items: Option[List[Item]] = ???
+    val items: Option[List[Item]] = values.traverse(createItem(_))
     assertEquals(items, None)
   }
 

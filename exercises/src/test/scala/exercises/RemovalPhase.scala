@@ -2,7 +2,7 @@ package exercises
 
 // TODO: Remove IgnoreSuite annotation
 
-@munit.IgnoreSuite
+// @munit.IgnoreSuite
 class RemovalPhase extends munit.FunSuite {
 
   case class Item(qty: Int)
@@ -17,14 +17,14 @@ class RemovalPhase extends munit.FunSuite {
   test("valid creation") {
     val item = createItem("100")
     // TODO: Use fold to always produce a string result
-    val result: String = ???
+    val result: String = item.fold("will not show")(_.qty.toString)
     assertEquals(result, "100")
   }
 
   test("invalid creation") {
     val item = createItem("asd")
     // TODO: Use fold to always produce a string result
-    val result: String = ???
+    val result: String = item.fold("alternative value")(_.qty.toString)
     assertEquals(result, "alternative value")
   }
 

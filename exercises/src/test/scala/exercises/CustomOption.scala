@@ -2,7 +2,7 @@ package exercises
 
 // TODO: Remove IgnoreSuite annotation
 
-@munit.IgnoreSuite
+// @munit.IgnoreSuite
 class CustomOption extends munit.FunSuite {
 
   enum Option[A] {
@@ -10,18 +10,28 @@ class CustomOption extends munit.FunSuite {
     case Nope[A]() extends Option[A]
 
     // TODO: Implement the map function
-    def map[B](f: A => B): Option[B] = ???
+    def map[B](f: A => B): Option[B] = this match {
+      case Nope() => Nope()
+      case Yes(value) => Yes(f(value))
+    }
 
     // TODO: Implement the flatMap function
-    def flatMap[B](f: A => Option[B]): Option[B] = ???
+    def flatMap[B](f: A => Option[B]): Option[B] = this match {
+      case Nope() => Nope()
+      case Yes(value) => f(value)
+    }
 
     // TODO: Implement the fold function
-    def fold[B](default: => B, to: A => B): B = ???
+    // => B means it's lazily evaluated
+    def fold[B](default: => B, to: A => B): B = this match {
+      case Nope() => default
+      case Yes(value) => to(value)
+    }
   }
 
   object Option {
     // TODO: Implement the pure function
-    def pure[A](a: A): Option[A] = ???
+    def pure[A](a: A): Option[A] = Yes(a)
   }
 
   def increment(x: Int): Int =

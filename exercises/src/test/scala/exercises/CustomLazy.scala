@@ -2,24 +2,24 @@ package exercises
 
 // TODO: Remove IgnoreSuite annotation
 
-@munit.IgnoreSuite
+// @munit.IgnoreSuite
 class CustomLazy extends munit.FunSuite {
 
   case class Lazy[A](func: () => A) {
 
     // TODO: Implement the map function
-    def map[B](f: A => B): Lazy[B] = ???
+    def map[B](f: A => B): Lazy[B] = Lazy(() => f(func()))
 
     // TODO: Implement the flatMap function
-    def flatMap[B](f: A => Lazy[B]): Lazy[B] = ???
+    def flatMap[B](f: A => Lazy[B]): Lazy[B] = Lazy(() => f(func()).fold())
 
     // TODO: Implement the fold function
-    def fold(): A = ???
+    def fold(): A = func()
   }
 
   object Lazy {
     // TODO: Implement the pure function
-    def pure[A](a: () => A): Lazy[A] = ???
+    def pure[A](a: () => A): Lazy[A] = Lazy(a)
   }
 
   def expensiveComputation(): Int = {
@@ -81,7 +81,7 @@ class CustomLazy extends munit.FunSuite {
   def log(message: String): Unit =
     System.out.println(message)
 
-  def captureOutput[A](action: => Unit): List[String] = {
+  def captureOutput(action: => Unit): List[String] = {
     import java.io.{ ByteArrayInputStream, ByteArrayOutputStream, PrintStream }
 
     val originalOut = System.out
