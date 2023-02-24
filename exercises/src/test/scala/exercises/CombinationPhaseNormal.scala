@@ -2,7 +2,7 @@ package exercises
 
 // TODO: Remove IgnoreSuite annotation
 
-@munit.IgnoreSuite
+// @munit.IgnoreSuite
 class CombinationPhaseNormal extends munit.FunSuite {
 
   case class Item(qty: Int)
@@ -20,14 +20,20 @@ class CombinationPhaseNormal extends munit.FunSuite {
   test("creation and checkIn") {
     val item = createItem("100")
     // TODO: Use map to checkIn 10 items
-    val result: Option[Item] = ???
+    val result: Option[Item] = item.map(
+      x => checkIn(qty = 10, item = x)
+    )
+    // also:
+    // item.map(checkIn(10, _))
     assertEquals(result, Some(Item(110)))
   }
 
   test("invalid creation") {
     val item = createItem("asd")
     // TODO: Use map to checkIn 10 items
-    val result: Option[Item] = ???
+    val result: Option[Item] = item.map(
+      x => checkIn(qty = 10, item = x)
+    )
     assertEquals(result, None)
   }
 
