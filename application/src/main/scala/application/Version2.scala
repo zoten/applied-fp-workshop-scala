@@ -20,36 +20,85 @@ object Version2 {
   //  - combine planet, rover and commands parsers
   //  - call executeAll
   //  - render the mission result
-  def runMission(inputPlanet: (String, String), inputRover: (String, String), inputCommands: String): Either[ParseError, String] = ???
+  def runMission(inputPlanet: (String, String), inputRover: (String, String), inputCommands: String): Either[ParseError, String] =
+    for {
+      planet <- parsePlanet(inputPlanet)
+      rover <- parseRover(inputRover)
+      commands = parseCommands(inputCommands)
+      result = executeAll(planet, rover, commands)
+      rendered = render(result)
+    } yield rendered
 
   // PARSING
 
   // TODO 1: implements (input = 'F')
-  def parseCommand(input: Char): Command = ???
+  def parseCommand(input: Char): Command = input.toString().toUpperCase() match {
+    case "F" => MoveForward
+    case "B" => MoveBackward
+    case "R" => TurnRight
+    case "L" => TurnLeft
+    case _   => Unknown
+  }
 
   // TODO 2: combine parseCommand (input = "BFFLLR")
-  def parseCommands(input: String): List[Command] = ???
+  // in Scala () are used in function signature to warn there may be side effects
+  // why input.toCharArray().toList().map(parseCommand) doesn't work?
+  // input.toCharArray.toList.map(parseCommand)
+  def parseCommands(input: String): List[Command] =
+    input.toList.map(parseCommand)
 
   // TODO 3: combine parseIntTuple (input = "3,2"), error should be InvalidRover
-  def parsePosition(input: String): Either[ParseError, Position] = ???
+  def parsePosition(input: String): Either[ParseError, Position] =
+    parseIntTuple(",", input)
+      .leftMap(_ => ParseError.InvalidRover(message = s"invalid position: ${input}"))
+      .map((x, y) => Position(x = x, y = y))
 
   // TODO 4: implements (input = "N"), error should be InvalidRover
-  def parseOrientation(input: String): Either[ParseError, Orientation] = ???
+  def parseOrientation(input: String): Either[ParseError, Orientation] = input.toString().toUpperCase() match {
+    case "N" => Right(N)
+    case "S" => Right(S)
+    case "W" => Right(W)
+    case "E" => Right(E)
+    case _   => Left(ParseError.InvalidRover(message = s"invalid orientation: ${input}"))
+  }
 
   // TODO 5: combine parsePosition and parseOrientation, error should be InvalidRover
-  def parseRover(input: (String, String)): Either[ParseError, Rover] = ???
+  def parseRover(input: (String, String)): Either[ParseError, Rover] = {
+    val (position, orientation) = input
+    for {
+      parsed_position <- parsePosition(position)
+      parsed_orientation <- parseOrientation(orientation)
+    } yield Rover(position = parsed_position, orientation = parsed_orientation)
+  }
 
   // TODO 6: combine parseIntTuple (input = "5x5"), error should be InvalidPlanet
-  def parseSize(input: String): Either[ParseError, Size] = ???
+  def parseSize(input: String): Either[ParseError, Size] = parseIntTuple("x", input)
+    .leftMap(_ => ParseError.InvalidPlanet(message = s"invalid size: ${input}"))
+    .map((w, h) => Size(width = w, height = h))
 
   // TODO 7: combine parsePosition (input = "3,2"), error should be InvalidPlanet
-  def parseObstacle(input: String): Either[ParseError, Obstacle] = ???
+  def parseObstacle(input: String): Either[ParseError, Obstacle] =
+    parsePosition(input)
+      .map(p => Obstacle(p))
+      .leftMap(_ => ParseError.InvalidPlanet(message = s"invalid obstacle: ${input}"))
+
+    // other formulation
+    // parseIntTuple(",", input)
+    // .leftMap(_ => ParseError.InvalidPlanet(message = s"invalid obstacle: ${input}"))
+    // .map((x, y) => Obstacle(Position(x = x, y = y)))
 
   // TODO 8: combine parseObstacle (input = "3,2 7,0 2,9"), error should be InvalidPlanet
-  def parseObstacles(input: String): Either[ParseError, List[Obstacle]] = ???
+  def parseObstacles(input: String): Either[ParseError, List[Obstacle]] =
+    input.split(" ").toList.traverse(parseObstacle)
 
   // TODO 9: combine parseSize and parseObstacles, error should be InvalidPlanet
-  def parsePlanet(input: (String, String)): Either[ParseError, Planet] = ???
+  def parsePlanet(input: (String, String)): Either[ParseError, Planet] = {
+    val (size, obstacles) = input
+    for {
+      parsed_size <- parseSize(size)
+      parsed_obstacles <- parseObstacles(obstacles)
+    } yield Planet(size = parsed_size, obstacles = parsed_obstacles)
+  }
 
   // NOTE: utility function to split a string in a pair of ints
   def parseIntTuple(separator: String, input: String): Either[Throwable, (Int, Int)] =
@@ -61,7 +110,7 @@ object Version2 {
   // RENDERING
 
   // TODO 10: implements render, combine the mission result string
-  def render(rover: Rover): String = ???
+  def render(rover: Rover): String = s"${rover.position.x}:${rover.position.y}:${rover.orientation.toString}"
 
   // DOMAIN
   def executeAll(planet: Planet, rover: Rover, commands: List[Command]): Rover =
