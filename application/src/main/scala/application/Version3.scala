@@ -26,7 +26,10 @@ object Version3 {
       rover <- parseRover(inputRover)
       commands = parseCommands(inputCommands)
       result = executeAll(planet, rover, commands)
-    } yield ???
+    } yield result.fold(
+      renderObstacle,
+      renderComplete
+    )
 
   // PARSING
   def parseCommand(input: Char): Command =
@@ -103,17 +106,18 @@ object Version3 {
   //   commands.foldLeft(rover)((prev, cmd) => execute(planet, prev, cmd))
   def executeAll(planet: Planet, rover: Rover, commands: List[Command]): Either[ObstacleDetected, Rover] = {
     val init = rover.asRight[ObstacleDetected]
-    commands.foldLeft(init)((prev, cmd) => ???)
+    // I'm flattening either in prev and either in execute
+    commands.foldLeft(init)((prev, cmd) => prev.flatMap(rover_acc => execute(planet, rover_acc, cmd)))
   }
 
   // TODO 5: fix in order to propagate Either
-  def execute(planet: Planet, rover: Rover, command: Command): Rover =
+  def execute(planet: Planet, rover: Rover, command: Command): Either[ObstacleDetected, Rover] =
     command match {
-      case TurnRight    => turnRight(rover)
-      case TurnLeft     => turnLeft(rover)
+      case TurnRight    => Right(turnRight(rover))
+      case TurnLeft     => Right(turnLeft(rover))
       case MoveForward  => moveForward(planet, rover)
       case MoveBackward => moveBackward(planet, rover)
-      case Unknown      => rover
+      case Unknown      => Right(rover)
     }
 
   def turnRight(rover: Rover): Rover =
@@ -133,15 +137,19 @@ object Version3 {
     })
 
   // TODO 4: fix in order to propagate Either
-  def moveForward(planet: Planet, rover: Rover): Rover =
-    rover.copy(position = next(planet, rover, delta(rover.orientation)))
+  def moveForward(planet: Planet, rover: Rover): Either[ObstacleDetected, Rover] =
+    // rover.copy(position = next(planet, rover, delta(rover.orientation)))
+    next(planet, rover, delta(rover.orientation))
+      .map(new_position => rover.copy(position = new_position))
 
   // TODO 3: fix in order to propagate Either
-  def moveBackward(planet: Planet, rover: Rover): Rover =
-    rover.copy(position = next(planet, rover, delta(opposite(rover.orientation))))
+  def moveBackward(planet: Planet, rover: Rover): Either[ObstacleDetected, Rover] =
+    // rover.copy(position = next(planet, rover, delta(opposite(rover.orientation))))
+    next(planet, rover, delta(opposite(rover.orientation)))
+      .map(new_position => rover.copy(position = new_position))
 
   // TODO 2: change return type (follow result type)
-  def next(planet: Planet, rover: Rover, delta: Delta): Position = {
+  def next(planet: Planet, rover: Rover, delta: Delta): Either[ObstacleDetected, Position] = {
     val position = rover.position
     val candidate = position.copy(
       x = wrap(position.x, planet.size.width, delta.x),
@@ -149,10 +157,11 @@ object Version3 {
     )
 
     val hitObstacle = planet.obstacles.map(_.position).contains(candidate)
-    val result = Either.cond(!hitObstacle, candidate, ObstacleDetected(rover))
-
+    // val result = Either.cond(!hitObstacle, candidate, ObstacleDetected(rover))
     // TODO 1: on the next line, replace candidate with result
-    candidate
+    // candidate
+    Either.cond(!hitObstacle, candidate, ObstacleDetected(rover))
+
   }
 
   def opposite(orientation: Orientation): Orientation =

@@ -2,7 +2,7 @@ package application
 
 // TODO: Remove IgnoreSuite annotation
 
-@munit.IgnoreSuite
+// @munit.IgnoreSuite
 class Version3Tests extends munit.FunSuite {
 
   import application.Version3._
