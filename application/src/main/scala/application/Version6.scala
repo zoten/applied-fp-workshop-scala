@@ -129,8 +129,9 @@ object Version6 {
       infrastructure: EFFECT => IO[Option[EVENT]]
     ): IO[Unit] = {
 
+      // internal declaration of loop to capture callbacks
       def loop(currentState: MODEL, currentEffect: EFFECT): IO[Unit] =
-        infrastructure(currentEffect)
+        infrastructure(currentEffect) // returns IO
           .flatMap { wishToContinue =>
             wishToContinue match {
               case Some(ev) =>
@@ -138,7 +139,9 @@ object Version6 {
                 loop(nextState, nextEffect)
               case None => IO.unit
             }
-          }
+          } // possible next IO
+        // on Some I update and recur
+        // on None I stop
 
       val (beginModel, beginEffect) = init
       loop(beginModel, beginEffect)
