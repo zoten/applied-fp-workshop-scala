@@ -44,22 +44,27 @@ object Version6 {
   }
 
   // TODO 1: Initially we are in the Loading state and we want to load mission
-  def init(planetFile: String, roverFile: String): (AppState, Effect) = ???
+  def init(planetFile: String, roverFile: String): (AppState, Effect) =
+    (AppState.Loading, Effect.LoadMission(planetFile, roverFile))
 
   def update(model: AppState, event: Event): (AppState, Effect) =
     (model, event) match {
 
       // TODO 2: change state and ask for commands
       case (AppState.Loading, Event.LoadMissionSuccessful(planet, rover)) =>
-        ???
+        (AppState.Ready(planet, rover), Effect.AskCommands)
 
       // TODO 3: change state and report mission KO
       case (AppState.Loading, Event.LoadMissionFailed(error)) =>
-        ???
+        (AppState.Failed, Effect.ReportKo(error))
 
       // TODO 4: execute all commands and report mission result
       case (AppState.Ready(planet, rover), Event.CommandsReceived(commands)) =>
-        ???
+        executeAll(planet, rover, commands)
+          .fold(
+            blocked => (AppState.Ready(planet, blocked.rover), Effect.ReportObstacleDetected(blocked)),
+            finished => (AppState.Ready(planet, finished), Effect.ReportCommandSequenceCompleted(finished))
+          )
 
       // NOTE: otherwise something unknown happened so report mission KO
       case _ =>
