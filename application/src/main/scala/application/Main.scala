@@ -10,6 +10,8 @@ object Main extends App {
   // val app = createApplication("planet.txt", "rover.txt")
   // expected [ERROR] Planet parsing: invalid size: ax4
   // val app = createApplication("planet_invalid_data.txt", "rover.txt")
+  // [ERROR] Invalid file content: planet_invalid_content.txt
+  // val app = createApplication("planet_invalid_content.txt", "rover.txt")
   // app.unsafeRunSync()
 
 }
