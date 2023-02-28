@@ -4,7 +4,7 @@ import munit.CatsEffectSuite
 
 // TODO: Remove IgnoreSuite annotation
 
-@munit.IgnoreSuite
+// @munit.IgnoreSuite
 class Version5Tests extends CatsEffectSuite {
 
   import application.Version5._

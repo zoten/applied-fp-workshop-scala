@@ -40,28 +40,28 @@ object Version5 {
   def createApplication(planetFile: String, roverFile: String): IO[Unit] = {
     // TODO 1: calls relative load function
     val filePlanetReader = new PlanetReader {
-      def read(): IO[Planet] = ???
+      def read(): IO[Planet] = loadPlanet(planetFile)
     }
 
     // TODO 2: calls relative load function
     val fileRoverReader = new RoverReader {
-      def read(): IO[Rover] = ???
+      def read(): IO[Rover] = loadRover(roverFile)
     }
 
     // TODO 3: calls relative ask function
     val consoleCommandsReader = new CommandsReader {
-      def read(): IO[List[Command]] = ???
+      def read(): IO[List[Command]] = loadCommands()
     }
 
     // TODO 4: calls relative write* functions
     val loggerDisplayWriter = new DisplayWriter {
-      def sequenceCompleted(rover: Rover): IO[Unit] = ???
-      def obstacleDetected(rover: ObstacleDetected): IO[Unit] = ???
-      def error(error: Throwable): IO[Unit] = ???
+      def sequenceCompleted(rover: Rover): IO[Unit] = writeSequenceCompleted(rover = rover)
+      def obstacleDetected(rover: ObstacleDetected): IO[Unit] = writeObstacleDetected(rover = rover)
+      def error(error: Throwable): IO[Unit] = writeError(error = error)
     }
 
     // TODO 5: call injectable createApplication
-    ???
+    createApplication(filePlanetReader, fileRoverReader, consoleCommandsReader, loggerDisplayWriter)
   }
 
   // NOTE: injectable entry point (use normal function parameters for Dependency Injection)
