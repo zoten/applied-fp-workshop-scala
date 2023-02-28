@@ -137,7 +137,9 @@ object Version6 {
               case Some(ev) =>
                 val (nextState, nextEffect) = update(currentState, ev)
                 loop(nextState, nextEffect)
-              case None => IO.unit
+              case None =>
+                // I "accumulated" side effects through previous IO accumulations
+                IO.unit
             }
           } // possible next IO
         // on Some I update and recur
